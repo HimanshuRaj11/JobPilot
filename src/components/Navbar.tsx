@@ -7,9 +7,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { FetchUser, LogoutUser } from "@/app/Redux/Slice/User.slice";
 import { FetchCompany } from "@/app/Redux/Slice/Company.slice";
 import { useRouter } from "next/navigation";
+import Loader from "./Loader";
 
 export default function Navbar() {
-    const { User } = useSelector((state: any) => state.User);
+    const { User, loading } = useSelector((state: any) => state.User);
     const { Company } = useSelector((state: any) => state.Company);
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false);
@@ -20,8 +21,8 @@ export default function Navbar() {
     const menuItems = [
         { name: "Home", href: "/" },
 
-        ...(Company ? [{ name: "Dashboard", href: "/dashboard" }, { name: "Find Candidates", href: "/find-candidates" },]
-            : [{ name: "My Jobs", href: "/jobs" },]),
+        ...(Company ? [{ name: "Dashboard", href: "/dashboard", }, { name: "Find Candidates", href: "/find-candidates" }, { name: "My Jobs", href: "/jobs" },]
+            : []),
         { name: "Applications", href: "/applications" },
         { name: "Support", href: "/support" },
     ];
@@ -66,6 +67,10 @@ export default function Navbar() {
 
     return (
         <header className="w-full sticky top-0 z-50 bg-white">
+
+            {
+                loading && <Loader />
+            }
             {/* Top Info Bar */}
             <div className="bg-gradient-to-r from-gray-50 to-blue-50 text-sm text-gray-600 py-2 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
@@ -75,9 +80,9 @@ export default function Navbar() {
                             <Phone size={14} />
                             <span className="font-medium">+1-202-555-0178</span>
                         </div>
-                        <div className="hidden sm:block text-xs">
-                            <span>🕒 Mon-Fri 9AM-6PM EST</span>
-                        </div>
+                        {/* <div className="hidden sm:block text-xs">
+                            <span>🕒 Mon-Fri 9AM-6PM IST</span>
+                        </div> */}
                     </div>
 
                     {/* Right: Language Selector */}
@@ -110,7 +115,7 @@ export default function Navbar() {
                                 <span className="text-white font-bold text-sm">J</span>
                             </div>
                             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
-                                Jobpilot
+                                JobPilot
                             </span>
                         </Link>
 
@@ -161,7 +166,7 @@ export default function Navbar() {
                                 {/* Post Job Button - Company Only */}
                                 {Company && (
                                     <Link
-                                        href="/post-job"
+                                        href="/jobs/post"
                                         className="bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-medium shadow-md hover:shadow-lg hover:scale-105 transform"
                                     >
                                         + Post Job
@@ -273,7 +278,7 @@ export default function Navbar() {
                                     {/* Post Job Button - Mobile */}
                                     {Company && (
                                         <Link
-                                            href="/post-job"
+                                            href="/jobs/post"
                                             className="block text-center bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-medium shadow-md mt-4"
                                             onClick={() => setIsOpen(false)}
                                         >

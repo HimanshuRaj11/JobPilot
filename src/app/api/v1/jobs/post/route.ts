@@ -28,6 +28,8 @@ export async function POST(req: Request) {
                 { status: 404 }
             );
         }
+        const data = await req.json();
+
         const {
             title,
             description,
@@ -41,7 +43,7 @@ export async function POST(req: Request) {
             skills,
             requirements,
             benefits,
-        } = await req.json();
+        } = data;
 
 
         const job = await prisma.job.create({

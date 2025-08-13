@@ -29,7 +29,6 @@ export async function POST(req: Request) {
         const token = jwt.sign(
             { userId: user.id, firebaseUid: user.firebaseUid },
             process.env.JWT_SECRET!,
-            { expiresIn: "7d" }
         );
         const response = NextResponse.json({ user: userWithoutPassword, token, success: true }, { status: 200 });
 
@@ -37,6 +36,7 @@ export async function POST(req: Request) {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
+            maxAge: 60 * 60 * 24 * 90
         })
 
         return response;
