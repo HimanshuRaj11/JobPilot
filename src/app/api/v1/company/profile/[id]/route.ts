@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+interface PageProps {
+    params: {
+        id: string;
+    };
+}
 
 // GET /api/v1/company/[id]
-export async function GET(
-    req: Request,
-    { params }: { params: { id: string } }
-) {
+export async function GET(req: Request, { params }: PageProps) {
     try {
         const companyId = params.id;
 
