@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import Loader from './Loader';
 
 const JobListings = () => {
-    const [searchTerm, setSearchTerm] = useState('developer');
+    const [searchTerm, setSearchTerm] = useState('');
     const [selectedLocation, setSelectedLocation] = useState('');
     const [selectedType, setSelectedType] = useState('');
     const [savedJobs, setSavedJobs] = useState(new Set());
