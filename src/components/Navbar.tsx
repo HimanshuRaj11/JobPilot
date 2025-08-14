@@ -74,7 +74,7 @@ export default function Navbar() {
                     <div className="flex items-center space-x-6">
                         <div className="flex items-center space-x-2 hover:text-blue-600 transition-colors">
                             <Phone size={14} />
-                            <span className="font-medium">+1-202-555-0178</span>
+                            <span className="font-medium">+91 7320869391</span>
                         </div>
                     </div>
 
