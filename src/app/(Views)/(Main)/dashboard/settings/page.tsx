@@ -45,9 +45,9 @@ export default function page() {
 
                     <div className="w-full">
                         {selectedStep === 0 && <CompanySettingsInfo Company={Company} />}
-                        {selectedStep === 1 && <CompanyFoundingDetails Company={Company} />}
+                        {selectedStep === 1 && <CompanyFoundingDetails />}
                         {selectedStep === 2 && <CompanySocialLinksDetails Company={Company} />}
-                        {selectedStep === 3 && <CompanyContactDetails Company={Company} />}
+                        {selectedStep === 3 && <CompanyContactDetails />}
 
                     </div>
                 </div>
