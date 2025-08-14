@@ -5,7 +5,10 @@ import ContactForm from '@/components/ContactForm';
 import SuccessPage from '@/components/SetUpSuccess';
 import SocialLinksForm from '@/components/SocialLinksForm';
 import { AtSign, BriefcaseBusiness, CircleUserRound, Globe, UserRound } from 'lucide-react';
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 interface CompanyState {
     name: string;
@@ -24,6 +27,9 @@ interface CompanyState {
     SocialLinks: any[];
 }
 export default function page() {
+    const { Company } = useSelector((state: any) => state.Company);
+    const { User } = useSelector((state: any) => state.User);
+    const router = useRouter();
     const [selectedStep, setSelectedStep] = useState(0);
     const [success, setSuccess] = useState(false);
     const [logo, setLogo] = useState<string | null>(null);
@@ -61,6 +67,16 @@ export default function page() {
         icon: <AtSign />
     }
     ]
+    useEffect(() => {
+
+        if (User?.emailVerified == false) {
+            toast.error("Please verify Your email first")
+            router.push('/');
+        }
+        if (User?.emailVerified && Company) {
+            router.push('/dashboard');
+        }
+    }, [])
     return (
         <div>
             <div className="flex items-center justify-between h-20 px-16 ">

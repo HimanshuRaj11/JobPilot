@@ -51,7 +51,7 @@ const CompanyLogin = () => {
 
                 {/* Right Login Form */}
                 <div className="w-full md:w-1/2 p-8 sm:p-12">
-                    <h2 className="text-2xl font-bold mb-6 text-center">Login as a Company</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
                     <form className="space-y-4" onSubmit={handleSubmit}>
                         <div>

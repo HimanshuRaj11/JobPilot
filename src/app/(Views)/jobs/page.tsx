@@ -32,7 +32,7 @@ export default function page() {
                 }
                 {Jobs?.length > 0 ? (
                     Jobs?.map((job: any) => (
-                        <div key={job.id}>
+                        <div key={job.id} className='my-2'>
                             <JobCard job={job} />
                         </div>
                     ))

@@ -1,9 +1,18 @@
 'use client'
-import { Building, Clock, DollarSign, ExternalLink, Heart, IndianRupee, MapPin, Star, Users, } from 'lucide-react'
+import { Building, Clock, DollarSign, ExternalLink, Heart, IndianRupee, MapPin, Star, Users, WorkflowIcon, } from 'lucide-react'
 import React, { useState } from 'react'
 import moment from 'moment'
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
 
 export default function JobCard({ job }: { job: any }) {
+
+    const { User } = useSelector((state: any) => state.User)
+
+    const Applications = User?.applications
+
+    const isApplied = Applications?.some((application: any) => application.userId == User.id)
 
     const [savedJobs, setSavedJobs] = useState(new Set());
 
@@ -18,16 +27,33 @@ export default function JobCard({ job }: { job: any }) {
             return newSaved;
         });
     };
+
+    const handleApply = async () => {
+        try {
+            const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/jobs/apply`, { jobId: job.id }, { withCredentials: true })
+            console.log(data);
+
+            if (data.success) {
+                toast.success(data.message)
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                toast.error(error.response.data.message || 'Something went wrong!');
+            } else {
+                toast.error('Something went wrong!');
+            }
+        }
+    }
     return (
         <div>
-            <div key={job.id} className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow duration-200">
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow duration-200">
                 <div className="p-6">
                     <div className="flex items-start justify-between">
                         <div className="flex items-start space-x-4 flex-1">
                             {/* Company Logo */}
                             <div className="flex-shrink-0">
                                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-2xl">
-                                    {job.logo}
+                                    {job.logo || <WorkflowIcon />}
                                 </div>
                             </div>
 
@@ -107,10 +133,18 @@ export default function JobCard({ job }: { job: any }) {
                                         <button className="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium">
                                             View Details
                                         </button>
-                                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center">
-                                            Apply Now
-                                            <ExternalLink className="w-4 h-4 ml-1" />
-                                        </button>
+                                        {
+                                            isApplied ?
+                                                <button onClick={handleApply} className="cursor-pointer px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center">
+                                                    Already Applied
+                                                    <ExternalLink className="w-4 h-4 ml-1" />
+                                                </button>
+                                                :
+                                                <button onClick={handleApply} className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center">
+                                                    Apply Now
+                                                    <ExternalLink className="w-4 h-4 ml-1" />
+                                                </button>
+                                        }
                                     </div>
                                 </div>
                             </div>

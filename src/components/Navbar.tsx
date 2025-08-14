@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, Phone, UserRound, Bell, X, ChevronDown, LogOut, Settings, User as UserIcon, Building } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { FetchUser, LogoutUser } from "@/app/Redux/Slice/User.slice";
@@ -12,7 +13,8 @@ import Loader from "./Loader";
 export default function Navbar() {
     const { User, loading } = useSelector((state: any) => state.User);
     const { Company } = useSelector((state: any) => state.Company);
-    const router = useRouter()
+    const router = useRouter();
+    const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [notificationCount, setNotificationCount] = useState(3);
@@ -20,9 +22,11 @@ export default function Navbar() {
 
     const menuItems = [
         { name: "Home", href: "/" },
-
-        ...(Company ? [{ name: "Dashboard", href: "/dashboard", }, { name: "Find Candidates", href: "/find-candidates" }, { name: "My Jobs", href: "/jobs" },]
-            : []),
+        ...(Company ? [
+            { name: "Dashboard", href: "/dashboard" },
+            { name: "Find Candidates", href: "/find-candidates" },
+            { name: "My Jobs", href: "/jobs" },
+        ] : []),
         { name: "Applications", href: "/applications" },
         { name: "Support", href: "/support" },
     ];
@@ -31,7 +35,16 @@ export default function Navbar() {
         { name: "Profile", href: "/profile", icon: UserIcon },
         { name: "Settings", href: "/settings", icon: Settings },
         ...(Company ? [{ name: "Company Profile", href: "/dashboard", icon: Building }] : []),
+        ...(User?.role == 'company' && !Company ? [{ name: "Register Company Profile", href: "/company/register", icon: Building }] : [])
     ];
+
+    // Function to check if a link is active
+    const isActiveLink = (href: string) => {
+        if (href === "/") {
+            return pathname === "/";
+        }
+        return pathname.startsWith(href);
+    };
 
     const handleLogout = useCallback(
         async () => {
@@ -44,33 +57,16 @@ export default function Navbar() {
             }
         }, [])
 
-
     useEffect(() => {
         dispatch(FetchUser() as any);
         dispatch(FetchCompany() as any);
     }, [dispatch, handleLogout]);
 
-    // Close mobile menu when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (isOpen && !(event.target as Element).closest('.mobile-menu-container')) {
-                setIsOpen(false);
-            }
-            if (isProfileOpen && !(event.target as Element).closest('.profile-menu-container')) {
-                setIsProfileOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen, isProfileOpen]);
 
     return (
         <header className="w-full sticky top-0 z-50 bg-white">
+            {loading && <Loader />}
 
-            {
-                loading && <Loader />
-            }
             {/* Top Info Bar */}
             <div className="bg-gradient-to-r from-gray-50 to-blue-50 text-sm text-gray-600 py-2 border-b border-gray-200">
                 <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
@@ -80,9 +76,6 @@ export default function Navbar() {
                             <Phone size={14} />
                             <span className="font-medium">+1-202-555-0178</span>
                         </div>
-                        {/* <div className="hidden sm:block text-xs">
-                            <span>🕒 Mon-Fri 9AM-6PM IST</span>
-                        </div> */}
                     </div>
 
                     {/* Right: Language Selector */}
@@ -122,28 +115,43 @@ export default function Navbar() {
                         {/* Desktop Menu */}
                         {User ? (
                             <div className="hidden lg:flex space-x-8 items-center">
-                                {menuItems.map((item) => (
-                                    <Link
-                                        key={item.name}
-                                        href={item.href}
-                                        className="text-gray-600 hover:text-blue-600 transition-colors font-medium relative group"
-                                    >
-                                        {item.name}
-                                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full"></span>
-                                    </Link>
-                                ))}
+                                {menuItems.map((item) => {
+                                    const active = isActiveLink(item.href);
+                                    return (
+                                        <Link
+                                            key={item.name}
+                                            href={item.href}
+                                            className={`transition-colors font-medium relative group ${active
+                                                ? 'text-blue-600'
+                                                : 'text-gray-600 hover:text-blue-600'
+                                                }`}
+                                        >
+                                            {item.name}
+                                            <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-600 transition-all ${active
+                                                ? 'w-full'
+                                                : 'w-0 group-hover:w-full'
+                                                }`}></span>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div className="hidden lg:flex items-center space-x-4">
                                 <Link
                                     href="/register"
-                                    className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+                                    className={`transition-colors font-medium ${isActiveLink('/register')
+                                        ? 'text-blue-600'
+                                        : 'text-gray-600 hover:text-blue-600'
+                                        }`}
                                 >
                                     Sign Up
                                 </Link>
                                 <Link
                                     href="/login"
-                                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md hover:shadow-lg"
+                                    className={`px-6 py-2 rounded-lg transition-colors font-medium shadow-md hover:shadow-lg ${isActiveLink('/login')
+                                        ? 'bg-blue-700 text-white'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                                        }`}
                                 >
                                     Sign In
                                 </Link>
@@ -166,8 +174,11 @@ export default function Navbar() {
                                 {/* Post Job Button - Company Only */}
                                 {Company && (
                                     <Link
-                                        href="/jobs/post"
-                                        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-medium shadow-md hover:shadow-lg hover:scale-105 transform"
+                                        href="/dashboard/job/post"
+                                        className={`px-5 py-2 rounded-lg transition-all font-medium shadow-md hover:shadow-lg hover:scale-105 transform ${isActiveLink('/dashboard/job/post')
+                                            ? 'bg-gradient-to-r from-green-600 to-green-700 text-white'
+                                            : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                                            }`}
                                     >
                                         + Post Job
                                     </Link>
@@ -195,17 +206,23 @@ export default function Navbar() {
                                                     <p className="text-xs text-blue-600 font-medium mt-1">{Company?.name}</p>
                                                 )}
                                             </div>
-                                            {profileMenuItems.map((item) => (
-                                                <Link
-                                                    key={item.name}
-                                                    href={item.href}
-                                                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                                                    onClick={() => setIsProfileOpen(false)}
-                                                >
-                                                    <item.icon size={16} />
-                                                    <span>{item.name}</span>
-                                                </Link>
-                                            ))}
+                                            {profileMenuItems.map((item) => {
+                                                const active = isActiveLink(item.href);
+                                                return (
+                                                    <Link
+                                                        key={item.name}
+                                                        href={item.href}
+                                                        className={`flex items-center space-x-3 px-4 py-2 text-sm transition-colors ${active
+                                                            ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
+                                                            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                                                            }`}
+                                                        onClick={() => setIsProfileOpen(false)}
+                                                    >
+                                                        <item.icon size={16} />
+                                                        <span>{item.name}</span>
+                                                    </Link>
+                                                );
+                                            })}
                                             <hr className="my-2 border-gray-100" />
                                             <button
                                                 onClick={handleLogout}
@@ -251,36 +268,63 @@ export default function Navbar() {
                                     </div>
 
                                     {/* Menu Items */}
-                                    {menuItems.map((item) => (
-                                        <Link
-                                            key={item.name}
-                                            href={item.href}
-                                            className="block py-3 px-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            {item.name}
-                                        </Link>
-                                    ))}
+                                    {menuItems.map((item) => {
+                                        const active = isActiveLink(item.href);
+                                        return (
+                                            <Link
+                                                key={item.name}
+                                                href={'/'}
+                                                className={`block py-3 px-4 rounded-lg transition-colors font-medium ${active
+                                                    ? 'text-blue-600 bg-blue-50 border-l-4 border-blue-600'
+                                                    : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                                                    }`}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    router.push(item.href);
+                                                    setIsOpen(false);
+                                                }}
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        );
+                                    })}
 
                                     {/* Profile Links */}
-                                    {profileMenuItems.map((item) => (
-                                        <Link
-                                            key={item.name}
-                                            href={item.href}
-                                            className="flex items-center space-x-3 py-3 px-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            <item.icon size={18} />
-                                            <span>{item.name}</span>
-                                        </Link>
-                                    ))}
+                                    {profileMenuItems.map((item) => {
+                                        const active = isActiveLink(item.href);
+                                        return (
+                                            <Link
+                                                key={item.name}
+                                                href={item.href}
+                                                className={`flex items-center space-x-3 py-3 px-4 rounded-lg transition-colors ${active
+                                                    ? 'text-blue-600 bg-blue-50 border-l-4 border-blue-600'
+                                                    : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                                                    }`}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setIsOpen(false);
+                                                    router.push(item.href);
+                                                }}
+                                            >
+                                                <item.icon size={18} />
+                                                <span>{item.name}</span>
+                                            </Link>
+                                        );
+                                    })}
 
                                     {/* Post Job Button - Mobile */}
                                     {Company && (
                                         <Link
-                                            href="/jobs/post"
-                                            className="block text-center bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-medium shadow-md mt-4"
-                                            onClick={() => setIsOpen(false)}
+                                            href="/dashboard/job/post"
+                                            className={`block text-center py-3 px-4 rounded-lg transition-all font-medium shadow-md mt-4 ${isActiveLink('/dashboard/job/post')
+                                                ? 'bg-gradient-to-r from-green-600 to-green-700 text-white'
+                                                : 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                                                }`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setIsOpen(false);
+                                                router.push('/dashboard/job/post');
+                                            }}
                                         >
                                             + Post A Job
                                         </Link>
@@ -303,15 +347,25 @@ export default function Navbar() {
                                 <div className="space-y-2">
                                     <Link
                                         href="/register"
-                                        className="block py-3 px-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium text-center"
+                                        className={`block py-3 px-4 rounded-lg transition-colors font-medium text-center ${isActiveLink('/register')
+                                            ? 'text-blue-600 bg-blue-50 border-l-4 border-blue-600'
+                                            : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                                            }`}
                                         onClick={() => setIsOpen(false)}
                                     >
                                         Sign Up
                                     </Link>
                                     <Link
                                         href="/login"
-                                        className="block bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center shadow-md"
-                                        onClick={() => setIsOpen(false)}
+                                        className={`block py-3 px-4 rounded-lg transition-colors font-medium text-center shadow-md ${isActiveLink('/login')
+                                            ? 'bg-blue-700 text-white'
+                                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                                            }`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            router.push('/login');
+                                            setIsOpen(false);
+                                        }}
                                     >
                                         Sign In
                                     </Link>

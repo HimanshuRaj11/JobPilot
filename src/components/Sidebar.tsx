@@ -1,16 +1,16 @@
 "use client";
 
-import { Home, User, Settings } from "lucide-react";
+import { Home, User, Settings, Briefcase, FilePlus, Users, CreditCard, } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-    { name: "Overview", href: "/", icon: Home },
+    { name: "Overview", href: "/dashboard", icon: Home },
     { name: "Employers Profile", href: "/profile", icon: User },
-    { name: "Post A Job", href: "/dashboard/job/post", icon: Settings },
-    { name: "My Jobs", href: "/settings", icon: Settings },
-    { name: "saved Candidates", href: "/settings", icon: Settings },
-    { name: "Plans & Billings", href: "/settings", icon: Settings },
+    { name: "Post A Job", href: "/dashboard/job/post", icon: FilePlus },
+    { name: "My Jobs", href: "/jobs", icon: Briefcase },
+    { name: "Saved Candidates", href: "/settings", icon: Users },
+    { name: "Plans & Billings", href: "/Plans-Billings", icon: CreditCard },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
 
 

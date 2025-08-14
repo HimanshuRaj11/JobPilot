@@ -1,8 +1,12 @@
 "use client";
 
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function JobPostForm() {
+    const router = useRouter()
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
@@ -58,28 +62,24 @@ export default function JobPostForm() {
                 benefits,
             };
 
-            const res = await fetch("/api/jobs", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
+            const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/jobs/post`, payload, { withCredentials: true });
 
-            const data = await res.json();
+            if (data.success) {
+                router.push('/dashboard')
+                toast.success(data.message)
+                setSuccess("Job posted successfully");
 
-            if (!res.ok) throw new Error(data?.message || "Failed to post job");
+                setTitle("");
+                setDescription("");
+                setLocation("");
+                setMinSalary("");
+                setMaxSalary("");
+                setRole("");
+                setSkills("");
+                setRequirements("");
+                setBenefits("");
+            }
 
-            setSuccess("Job posted successfully");
-            // optionally clear form
-            setTitle("");
-            setDescription("");
-
-            setLocation("");
-            setMinSalary("");
-            setMaxSalary("");
-            setRole("");
-            setSkills("");
-            setRequirements("");
-            setBenefits("");
         } catch (err: any) {
             setError(err.message || "Something went wrong");
         } finally {

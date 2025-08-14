@@ -14,7 +14,7 @@ import { useDispatch } from 'react-redux';
 import { FetchUser } from "@/app/Redux/Slice/User.slice";
 import { FetchCompany } from '@/app/Redux/Slice/Company.slice';
 // Zod validation schema
-const companyRegisterSchema = z.object({
+const UserRegisterSchema = z.object({
     name: z.string()
         .min(2, 'Full name must be at least 2 characters')
         .max(50, 'Full name must be less than 50 characters')
@@ -29,6 +29,10 @@ const companyRegisterSchema = z.object({
         .max(10, 'Phone number must be exactly 10 digits')
         .regex(/^\d+$/, 'Phone number should only contain digits'),
 
+    gender: z.enum(['Male', 'Female', 'Other']).optional()
+        .refine(val => val !== undefined, {
+            message: 'Please select a gender'
+        }),
     password: z.string()
         .min(8, 'Password must be at least 8 characters')
         .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
@@ -44,9 +48,9 @@ const companyRegisterSchema = z.object({
     path: ["confirmPassword"],
 });
 
-type FormData = z.infer<typeof companyRegisterSchema>;
+type FormData = z.infer<typeof UserRegisterSchema>;
 
-const CompanyRegister = () => {
+const RegisterUser = () => {
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -58,17 +62,24 @@ const CompanyRegister = () => {
         watch,
         formState: { errors, isValid }
     } = useForm<FormData>({
-        resolver: zodResolver(companyRegisterSchema),
+        resolver: zodResolver(UserRegisterSchema),
         mode: 'onChange',
         defaultValues: {
             name: '',
             email: '',
             phone: '',
+            gender: undefined,
             password: '',
             confirmPassword: '',
             agreeToTerms: false,
         }
     });
+
+    const selectedGender = watch('gender');
+
+    const handleGenderSelect = (gender: 'Male' | 'Female' | 'Other') => {
+        setValue('gender', gender, { shouldValidate: true });
+    };
 
     const onSubmit = async (data: FormData) => {
         setIsLoading(true);
@@ -79,19 +90,19 @@ const CompanyRegister = () => {
                 password: data.password,
                 confirmPassword: data.confirmPassword,
                 phone: data.phone,
-                role: "company",
+                gender: data.gender,
+                role: "user",
             };
 
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/auth/register`,
-                payload, { withCredentials: true }
+                payload
             );
 
             if (response.data.success) {
                 dispatch(FetchUser() as any);
                 dispatch(FetchCompany() as any);
                 router.push('/');
-
                 toast.success(response.data.message || 'Registration successful!');
             } else {
                 toast.error(response.data.message || 'Registration failed');
@@ -118,7 +129,7 @@ const CompanyRegister = () => {
 
                 {/* Right Register Form */}
                 <div className="w-full md:w-1/2 p-8 sm:p-12">
-                    <h2 className="text-2xl font-bold mb-6 text-center">Register as a Company</h2>
+                    <h2 className="text-2xl font-bold mb-6 text-center">Register To find Jobs</h2>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         {/* Full Name */}
@@ -182,7 +193,30 @@ const CompanyRegister = () => {
                             )}
                         </div>
 
-
+                        {/* Gender */}
+                        <div>
+                            <label className="block text-sm text-gray-700 mb-1">
+                                Gender <span className="text-red-500">*</span>
+                            </label>
+                            <div className="flex space-x-3">
+                                {(['Male', 'Female', 'Other'] as const).map((gender) => (
+                                    <button
+                                        type="button"
+                                        key={gender}
+                                        onClick={() => handleGenderSelect(gender)}
+                                        className={`px-4 py-2 rounded-full border transition-all ${selectedGender === gender
+                                            ? 'bg-blue-500 text-white border-blue-500'
+                                            : 'border-gray-300 text-gray-700 hover:bg-blue-50'
+                                            }`}
+                                    >
+                                        {gender}
+                                    </button>
+                                ))}
+                            </div>
+                            {errors.gender && (
+                                <p className="mt-1 text-xs text-red-600">{errors.gender.message}</p>
+                            )}
+                        </div>
 
                         {/* Password */}
                         <div className="flex space-x-4">
@@ -267,4 +301,4 @@ const CompanyRegister = () => {
     );
 };
 
-export default CompanyRegister;
+export default RegisterUser;

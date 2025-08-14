@@ -4,6 +4,7 @@ import { verifyUser } from "@/lib/verifyUser";
 import cloudinary from "@/lib/cloudnary";
 export async function POST(req: Request) {
     try {
+
         // Middleware should attach user info to request
         const userId = await verifyUser() as string;
         const User = await prisma.user.findUnique({
@@ -27,6 +28,13 @@ export async function POST(req: Request) {
             );
         }
 
+        const CheckCompany = await prisma.company.findFirst({
+            where: {
+                ownerId: User.id
+            }
+        })
+
+        if (CheckCompany) return NextResponse.json({ message: "Company all ready register ", error: true }, { status: 500 })
 
         // 2. Get request body
         const { CompanyRegisterData, logo, banner } = await req.json();
@@ -35,7 +43,7 @@ export async function POST(req: Request) {
             name, email, websiteUrl, type, phone, industry, size, description, established, location,
         } = CompanyRegisterData
 
-        if (!logo || !banner) return NextResponse.json({ error: "Something went wrong" }, { status: 500 }
+        if (!logo || !banner) return NextResponse.json({ message: "Something went wrong", error: true }, { status: 500 }
         );
         const logoRes = await cloudinary.uploader.upload(logo, {
             resource_type: "image",

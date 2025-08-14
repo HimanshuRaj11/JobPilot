@@ -7,13 +7,13 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
     try {
-        const { name, email, password } = await req.json();
+        const { name, email, password, phone, gender, role } = await req.json();
 
         if (!name || !email || !password) {
             return NextResponse.json({ message: "Missing required fields", error: true }, { status: 400 });
         }
 
-        // 1. Create user in Firebase
+
         const firebaseUser = await admin.auth().createUser({
             email,
             password,
@@ -28,6 +28,9 @@ export async function POST(req: Request) {
                 firebaseUid: firebaseUser.uid,
                 name,
                 email,
+                phone: phone || null,
+                // gender: gender || null,
+                role: role || null,
                 password: passwordHash,
             },
         });
@@ -38,6 +41,7 @@ export async function POST(req: Request) {
         );
 
         const link = await admin.auth().generateEmailVerificationLink(email);
+
         const response = NextResponse.json({ message: "User registered successfully. Please verify your email.", success: true }, { status: 201 });
 
         response.cookies.set("jobPilotAuth", token, {
