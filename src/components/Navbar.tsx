@@ -75,7 +75,7 @@ export default function Navbar() {
     return (
         <header className="w-full sticky top-0 z-50 bg-white">
             {loading && <Loader />}
-            {!User?.emailVerified && (
+            {User && !User?.emailVerified && (
                 <div className={`flex items-center gap-3  border ${linkGenerated ? "border-green-600 bg-green-400 text-green-900" : "border-yellow-300 bg-yellow-50 text-yellow-800"}  px-4 py-2 rounded-lg shadow-sm`}>
                     {
                         linkGenerated ?
