@@ -9,11 +9,11 @@ import { FetchUser, LogoutUser } from "@/app/Redux/Slice/User.slice";
 import { FetchCompany } from "@/app/Redux/Slice/Company.slice";
 import { useRouter } from "next/navigation";
 import Loader from "./Loader";
+import axios from "axios";
 
 export default function Navbar() {
     const { User, loading } = useSelector((state: any) => state.User);
     const { Company } = useSelector((state: any) => state.Company);
-    console.log(User, Company);
 
     const router = useRouter();
     const pathname = usePathname();
@@ -21,6 +21,7 @@ export default function Navbar() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [notificationCount, setNotificationCount] = useState(3);
     const dispatch = useDispatch();
+    const [linkGenerated, setLinkGenerated] = useState(false)
 
     const menuItems = [
         { name: "Home", href: "/" },
@@ -64,10 +65,37 @@ export default function Navbar() {
         dispatch(FetchCompany() as any);
     }, [dispatch, handleLogout]);
 
-
+    const resentVerificationLinkGenerate = async () => {
+        try {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/auth/resend_verification_link`, { withCredentials: true })
+            setLinkGenerated(true)
+        } catch (error) {
+        }
+    }
     return (
         <header className="w-full sticky top-0 z-50 bg-white">
             {loading && <Loader />}
+            {!User?.emailVerified && (
+                <div className={`flex items-center gap-3  border ${linkGenerated ? "border-green-600 bg-green-400 text-green-900" : "border-yellow-300 bg-yellow-50 text-yellow-800"}  px-4 py-2 rounded-lg shadow-sm`}>
+                    {
+                        linkGenerated ?
+                            <span className="text-sm">
+                                Please check your email to get verification link Link.
+                            </span> :
+
+                            <span className="text-sm">
+                                Please verify your email to unlock all features.
+                            </span>
+                    }
+
+                    <button
+                        onClick={resentVerificationLinkGenerate}
+                        className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition-all duration-200"
+                    >
+                        Generate Link
+                    </button>
+                </div>
+            )}
 
             {/* Top Info Bar */}
             <div className="bg-gradient-to-r from-gray-50 to-blue-50 text-sm text-gray-600 py-2 border-b border-gray-200">

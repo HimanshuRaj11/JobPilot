@@ -33,10 +33,9 @@ const CompanyLogin = () => {
                 dispatch(FetchUser() as any);
                 dispatch(FetchCompany() as any);
                 toast.success(data.message)
-
             }
-        } catch (error) {
-            toast.error("Something went wrong, Please Try again!!!")
+        } catch (error: any) {
+            toast.error(error.response.data.message)
         }
     }
 

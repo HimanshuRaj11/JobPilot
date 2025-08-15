@@ -40,9 +40,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  Company      Company[]
-  Address      Address[]
-  applications Application[]
+  emailVerificationToken EmailVerificationToken[]
+  Company                Company[]
+  Address                Address[]
+  applications           Application[]
 }
 
 model Company {
@@ -117,4 +118,12 @@ model SocialLink {
   url       String
   companyId String
   Company   Company @relation(fields: [companyId], references: [id])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
 }

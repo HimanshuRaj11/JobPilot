@@ -1,37 +1,38 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
     try {
-        const token = req.nextUrl.searchParams.get("token");
+        const { searchParams } = new URL(req.url);
+
+        const token = searchParams.get("token");
 
         if (!token) {
-            return new Response(JSON.stringify({ error: "Token is required" }), { status: 400 });
+            return NextResponse.json({ error: "Token not found" })
         }
 
-        // Find token in DB
-        // const storedToken = await prisma.verificationToken.findUnique({
-        //     where: { token },
-        //     include: { user: true }
-        // });
 
-        // if (!storedToken) {
-        //     return new Response(JSON.stringify({ error: "Invalid or expired token" }), { status: 400 });
-        // }
+        // Find token in DB
+        const storedToken = await prisma.emailVerificationToken.findUnique({
+            where: { id: token }
+        });
+
+        if (!storedToken) {
+            return NextResponse.json({ storedToken, message: "Invalid or expired token", error: true })
+        }
 
         // // Mark user as verified
-        // await prisma.user.update({
-        //     where: { id: storedToken.userId },
-        //     data: { emailVerified: true }
-        // });
+        await prisma.user.update({
+            where: { id: storedToken.userId },
+            data: { emailVerified: true }
+        });
 
-        // Delete token
-        // await prisma.verificationToken.delete({ where: { id: storedToken.id } });
+        await prisma.emailVerificationToken.delete({ where: { id: storedToken.id } });
 
-        return new Response(JSON.stringify({ message: "Email verified successfully!" }), { status: 200 });
+        return NextResponse.json({ message: "Email verified successfully!", success: true, storedToken });
 
     } catch (error) {
         console.error(error);
-        return new Response(JSON.stringify({ error: "Something went wrong" }), { status: 500 });
+        return NextResponse.json({ error: true, message: "internal server error" })
     }
 }

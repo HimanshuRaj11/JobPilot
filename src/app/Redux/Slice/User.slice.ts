@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import axios from 'axios';
-import { redirect } from "next/navigation";
 const base_url = process.env.NEXT_PUBLIC_BASE_URL
 
 export const FetchUser = createAsyncThunk('/getUser', async () => {
