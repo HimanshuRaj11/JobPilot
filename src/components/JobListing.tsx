@@ -12,8 +12,6 @@ const JobListings = () => {
     const [selectedType, setSelectedType] = useState('');
     const [savedJobs, setSavedJobs] = useState(new Set());
     const [Jobs, setJobs] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
-
 
     const toggleSaveJob = (jobId: any) => {
         setSavedJobs(prev => {
@@ -30,23 +28,32 @@ const JobListings = () => {
         try {
             const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/jobs/job_list/?q=${encodeURIComponent(searchTerm)}`,);
             setJobs(data.jobs);
-            setLoading(false)
         } catch (error) {
-
+            return
         }
 
     }, [searchTerm])
 
+    const SuggestedJobs = async () => {
+        try {
+            const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/jobs/suggested`,);
+            setJobs(data.jobs);
+        } catch (error) {
+            return
+        }
+    }
+
     useEffect(() => {
+        if (!searchTerm) SuggestedJobs()
         fetchJobs()
     }, [fetchJobs])
 
+    useEffect(() => {
+        if (!searchTerm) SuggestedJobs()
+    }, [])
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            {
-                loading && <Loader />
-            }
+
             <div className="bg-white shadow-sm border-b">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <h1 className="text-3xl font-bold text-gray-900 mb-6">Find Your Dream Job</h1>

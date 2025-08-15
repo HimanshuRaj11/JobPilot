@@ -55,8 +55,6 @@ const UserSlice = createSlice({
                 state.loading = false
 
             })
-
-
     }
 })
 
