@@ -56,7 +56,7 @@ export default function Navbar() {
                 setIsProfileOpen(false);
                 router.push('/login')
             } catch (error) {
-                console.error("Logout error:", error);
+                return error
             }
         }, [])
 

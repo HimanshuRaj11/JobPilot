@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
@@ -12,20 +12,24 @@ export async function GET(req: Request) {
         }
 
 
-        // Find token in DB
+
         const storedToken = await prisma.emailVerificationToken.findUnique({
             where: { id: token }
         });
+        console.log(storedToken, ":   Stored token");
+
 
         if (!storedToken) {
             return NextResponse.json({ storedToken, message: "Invalid or expired token", error: true })
         }
 
-        // // Mark user as verified
-        await prisma.user.update({
+
+        const user = await prisma.user.update({
             where: { id: storedToken.userId },
             data: { emailVerified: true }
         });
+        console.log(user);
+
 
         await prisma.emailVerificationToken.delete({ where: { id: storedToken.id } });
 

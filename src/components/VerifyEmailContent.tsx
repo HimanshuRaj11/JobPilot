@@ -20,7 +20,6 @@ export default function VerifyEmailContent() {
                 return;
             }
             const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/auth/verify-email?token=${encodeURIComponent(token as string)}`, { withCredentials: true })
-            console.log(data);
 
             if (data.success) {
                 toast.success(data.message)

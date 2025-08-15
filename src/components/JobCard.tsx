@@ -31,8 +31,6 @@ export default function JobCard({ job }: { job: any }) {
     const handleApply = async () => {
         try {
             const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/jobs/apply`, { jobId: job.id }, { withCredentials: true })
-            console.log(data);
-
             if (data.success) {
                 toast.success(data.message)
             }

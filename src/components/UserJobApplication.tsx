@@ -41,7 +41,6 @@ export default function UserJobApplication() {
             return error
         }
     }
-    console.log(Applications);
 
     useEffect(() => {
         getApplications()

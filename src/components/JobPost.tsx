@@ -66,7 +66,6 @@ export default function JobPostingForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(formData);
 
         try {
             const { data } = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/jobs/post`, formData, { withCredentials: true })
