@@ -22,6 +22,7 @@ export default function Navbar() {
     const [notificationCount, setNotificationCount] = useState(3);
     const dispatch = useDispatch();
     const [linkGenerated, setLinkGenerated] = useState(false)
+    const [linkGenerating, setLinkGenerating] = useState(false)
 
     const menuItems = [
         { name: "Home", href: "/" },
@@ -67,8 +68,10 @@ export default function Navbar() {
 
     const resentVerificationLinkGenerate = async () => {
         try {
+            setLinkGenerating(true)
             const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/auth/resend_verification_link`, { withCredentials: true })
             setLinkGenerated(true)
+            setLinkGenerating(false)
         } catch (error) {
         }
     }
@@ -92,7 +95,10 @@ export default function Navbar() {
                         onClick={resentVerificationLinkGenerate}
                         className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md transition-all duration-200"
                     >
-                        Generate Link
+                        {
+                            linkGenerating ? <h1>Generating...</h1> : <h1>Generate Link</h1>
+                        }
+
                     </button>
                 </div>
             )}

@@ -24,7 +24,7 @@ export default function VerifyEmailContent() {
             if (data.success) {
                 toast.success(data.message)
                 dispatch(FetchUser() as any);
-                router.push('/')
+                router.push('/login')
             }
         } catch (error) {
             return error

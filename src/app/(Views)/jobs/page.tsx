@@ -15,7 +15,6 @@ export default function page() {
         const { data } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/jobs/my_jobs`, { withCredentials: true })
         if (data.success) {
             setJobs(data.jobs)
-            console.log(data)
         }
         setLoading(false)
     }

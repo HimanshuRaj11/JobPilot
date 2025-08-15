@@ -11,25 +11,19 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "Token not found" })
         }
 
-
-
         const storedToken = await prisma.emailVerificationToken.findUnique({
             where: { id: token }
         });
-        console.log(storedToken, ":   Stored token");
-
 
         if (!storedToken) {
             return NextResponse.json({ storedToken, message: "Invalid or expired token", error: true })
         }
 
 
-        const user = await prisma.user.update({
+        await prisma.user.update({
             where: { id: storedToken.userId },
             data: { emailVerified: true }
         });
-        console.log(user);
-
 
         await prisma.emailVerificationToken.delete({ where: { id: storedToken.id } });
 
