@@ -13,6 +13,8 @@ import Loader from "./Loader";
 export default function Navbar() {
     const { User, loading } = useSelector((state: any) => state.User);
     const { Company } = useSelector((state: any) => state.Company);
+    console.log(User, Company);
+
     const router = useRouter();
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
