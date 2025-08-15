@@ -6,6 +6,8 @@ const base_url = process.env.NEXT_PUBLIC_BASE_URL
 export const FetchUser = createAsyncThunk('/getUser', async () => {
     try {
         const res = await axios.get(`${base_url}/api/v1/user`, { withCredentials: true })
+        console.log(res);
+
         return res.data
     } catch (error) {
         throw error;

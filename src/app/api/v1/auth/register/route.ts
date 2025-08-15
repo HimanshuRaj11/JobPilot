@@ -39,9 +39,12 @@ export async function POST(req: Request) {
             { userId: user.id, firebaseUid: user.firebaseUid },
             process.env.JWT_SECRET!,
         );
+        const actionCodeSettings = {
+            url: `${process.env.NEXT_PUBLIC_BASE_URL}`,
+            handleCodeInApp: true
+        };
 
-        const link = await admin.auth().generateEmailVerificationLink(email);
-
+        const link = await admin.auth().generateEmailVerificationLink(email, actionCodeSettings);
         const response = NextResponse.json({ message: "User registered successfully. Please verify your email.", success: true }, { status: 201 });
 
         response.cookies.set("jobPilotAuth", token, {
